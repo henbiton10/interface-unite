@@ -31,7 +31,7 @@ const dogs: Dog[] = [
     name: 'doggo',
     bark: 'woof',
     food: 'dogly',
-  }, 
+  },
   {
     id: 2,
     name: 'naknikos',
@@ -90,15 +90,15 @@ const shirs: ShirBarak[] = [
     hobby: 'mahon kosher'
   }
 ]
-const types = [{name: 'shir', elements: shirs},{name: 'dog', elements: dogs},{name: 'cat', elements: cats}]
+const types = [{ name: 'shir', elements: shirs }, { name: 'dog', elements: dogs }, { name: 'cat', elements: cats }]
 LicenseInfo.setLicenseKey('6239d8e4e4e446a3d208d638ff7603bdT1JERVI6Um9tLVRlc3QsRVhQSVJZPTIyMjMwNjEyMDAwMDAsS0VZVkVSU0lPTj0x')
-const App:React.FC = () => {
+const App: React.FC = () => {
   const [rows, setRows] = useState<any[]>([]);
   const [columns, setColumns] = useState<GridColDef[]>([]);
   const [currentDisplayedNames, setCurrentDisplayedNames] = useState<string[]>([]);
 
   const getSelectedEntitiesProps = () => {
-    const properties:string[][] = currentDisplayedNames.map(name => {
+    const properties: string[][] = currentDisplayedNames.map(name => {
       return Object.keys(types.find(type => type.name === name)!.elements[0]);
     })
     return properties;
@@ -107,43 +107,46 @@ const App:React.FC = () => {
   const getCommonProps = (propsArray: string[][]) => {
     const result = propsArray.shift()!.filter((v) => {
       return propsArray.every((a) => {
-          return a.indexOf(v) !== -1;
+        return a.indexOf(v) !== -1;
       });
-  });
+    });
     return result
   }
 
+  const generateColumnsFromKeys = (keys: string[]) => keys.map(key => (
+    { field: key, headerName: key === 'id' ? 'ID' : key, width: 100 }
+  ))
 
-  const setTableValues = (props: string[]) => {
+  const generateRowsFromKeys = (keys: string[]) => {
     let newRows: any[] = [];
-
-    const newColumns:GridColDef[] = props.map(key => (
-      {field: key, headerName: key === 'id' ? 'ID' : key, width: 100}
-    ));
-
-    setColumns(newColumns);
     const arrays: any[][] = currentDisplayedNames.map(name => types.find(type => type.name === name)!.elements)
-    
+
     arrays.forEach(arr => {
       let row: any = {};
       arr.forEach(prop => {
         const mapper = Object.entries(prop)
-        
-        const properValues = mapper.filter(map => props.some(key => map[0] === key));
+
+        const properValues = mapper.filter(map => keys.some(key => map[0] === key));
         if (properValues.length) {
           properValues.forEach(value => {
             row[value[0].toString()] = value[1]
           })
-          newRows = [...newRows, {...row}]
-          console.log(properValues);
+          newRows = [...newRows, { ...row }]
         }
       })
     })
+    return newRows
+  }
+
+  const setTableValues = (props: string[]) => {
+    const newColumns = generateColumnsFromKeys(props)
+    setColumns(newColumns);
+    const newRows = generateRowsFromKeys(props);
     setRows(newRows)
   }
- 
+
   useEffect(() => {
-    if(currentDisplayedNames.length !== 0) {
+    if (currentDisplayedNames.length !== 0) {
       const propsArray = getSelectedEntitiesProps();
       const commonProps = getCommonProps(propsArray);
       setTableValues(commonProps)
@@ -151,28 +154,27 @@ const App:React.FC = () => {
       setRows([]);
       setColumns([]);
     }
-
   }, [currentDisplayedNames])
-  
+
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>, name: string) => {
-    event.target.checked ? setCurrentDisplayedNames(prev => [...prev, name]) :  setCurrentDisplayedNames(prev => prev.filter(displayed => name != displayed)); 
+    event.target.checked ? setCurrentDisplayedNames(prev => [...prev, name]) : setCurrentDisplayedNames(prev => prev.filter(displayed => name != displayed));
   }
 
   return (
     <div>
       <FormGroup>
-      {types.map(type => (
-      <FormControlLabel control={<Checkbox onChange={(event) => handleChange(event, type.name)} />} label={type.name} />
-      ))}
-    </FormGroup>
+        {types.map(type => (
+          <FormControlLabel control={<Checkbox onChange={(event) => handleChange(event, type.name)} />} label={type.name} />
+        ))}
+      </FormGroup>
       <div style={{ height: 400, width: 500 }}>
-      <DataGridPro
-        rows={rows}
-        columns={columns}
-      />
+        <DataGridPro
+          rows={rows}
+          columns={columns}
+        />
       </div>
     </div>
-)
+  )
 }
 
 export default App;
