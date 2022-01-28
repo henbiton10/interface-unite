@@ -1,6 +1,7 @@
-import { Checkbox, FormControlLabel, FormGroup } from '@mui/material';
-import { DataGridPro, GridColDef, LicenseInfo } from '@mui/x-data-grid-pro';
 import React, { useEffect, useState } from 'react';
+import { DataGridPro, GridColDef } from '@mui/x-data-grid-pro';
+import { Checkbox, FormControlLabel, FormGroup } from '@mui/material';
+
 import { cats, dogs, shirs } from '../Data/data';
 import { useDataGridMapper } from './useDataGridMapper';
 
